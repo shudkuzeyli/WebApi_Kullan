@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Net.Http;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using WebApi_Kullan.Models;
@@ -47,6 +48,40 @@ public class HomeController : Controller
 		{
 			var filmList = JsonConvert.DeserializeObject<List<Film>>(responseStream); //4
 			return View(filmList); //5 -> eðer api den gelen veri varsa model gönderilir.
+		}
+
+		return View(new Film()); //6 -> eðer api den gelen veri yoksa boþ bir model gönderilir.
+
+	}
+
+	public async Task<IActionResult> FilmEdit()
+	{
+
+		Film film = new Film();
+		film.Id = 3;
+		film.FilmAdi = "Vurguncular";
+		film.Yil = 2025;
+		film.Yonetmen = "Ali";
+		film.Tur = "Komedi";
+		film.Silindi = false;
+
+		var json = JsonConvert.SerializeObject(film); //1
+		var content = new StringContent(json, Encoding.UTF8, "application/json"); //1.1
+
+		//var request = new HttpRequestMessage
+		//{
+		//	RequestUri = new Uri("https://localhost:7206/api/Film"),
+		//	Method = HttpMethod.Put
+		//};
+
+		/*var client = HttpClientFactory.Create();*/  //2 (HttpClientFactory.Create() -> HttpClient() ile ayný iþlemi yapar. Factory daha seri çalýþýr.)
+		var client = new HttpClient(); //2
+		var response = await client.PutAsync("https://localhost:7206/api/Film", content); //3
+		var responseStream = await response.Content.ReadAsStringAsync(); //3.1 -> cursor =döngü
+
+		if (responseStream != null)
+		{			
+			return View(); //5 -> eðer api den gelen veri varsa model gönderilir.
 		}
 
 		return View(new Film()); //6 -> eðer api den gelen veri yoksa boþ bir model gönderilir.
