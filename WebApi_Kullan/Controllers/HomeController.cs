@@ -85,8 +85,8 @@ public class HomeController : Controller
 		}
 
 		return View(new Film()); //6 -> eðer api den gelen veri yoksa boþ bir model gönderilir.
-
-	}
+														 
+		}
 
 	public IActionResult Index()
 	{
