@@ -1,0 +1,38 @@
+﻿
+@model IEnumerable<WebApi_Kullan.Models.Film>
+
+<div>
+	@{
+		ViewBag.Title = "FilmList";
+	}
+
+	<div class="card">
+		<div class="card-header">
+			Filmlerin Listesi
+		</div>
+		<div class="card-body">
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Id</th>
+						<th scope="col">Film Adı</th>
+						<th scope="col">Yönetmen</th>
+					</tr>
+				</thead>
+				@{
+					foreach (Film item in Model)
+					{
+						<tr>
+						<td><a asp-controller="Home" asp-action="Detay" asp-route-id="@item.Id" data-toogle="tooltip" title="Detay" class="btn btn-warning btn-sm"><i style ="font-size: 1rem" class="bi bi-person-vcard"></i></a> </td>
+							<td>@item.Id</td>
+							<td>@item.FilmAdi</td>
+							<td>@item.Yonetmen</td>
+						</tr>
+					}
+				}
+
+			</table>
+		</div>
+	</div>
+</div>

@@ -40,11 +40,11 @@ public class HomeController : Controller
 			Method = HttpMethod.Get
 		};
 
-		var client =  HttpClientFactory.Create();	//2
+		var client = HttpClientFactory.Create();  //2
 		var response = await client.SendAsync(request); //3
 		var responseStream = await response.Content.ReadAsStringAsync(); //3.1 -> cursor =döngü
 
-		if(responseStream != null)
+		if (responseStream != null)
 		{
 			var filmList = JsonConvert.DeserializeObject<List<Film>>(responseStream); //4
 			return View(filmList); //5 -> eðer api den gelen veri varsa model gönderilir.
@@ -54,43 +54,108 @@ public class HomeController : Controller
 
 	}
 
-	public async Task<IActionResult> FilmEdit()
+	/// <summary>
+	/// Modele gelen parametreyi kullanarak Film modelini db den dolduru ve api üzerinden günceller.
+	/// </summary>
+	/// <param name="model"></param>
+	/// <returns></returns>
+	//public async Task<IActionResult> FilmEdit(Film model)
+	//{
+
+	//	Film film = new Film();
+	//	film.Id = 3;
+	//	film.FilmAdi = "Vurguncular";
+	//	film.Yil = 2025;
+	//	film.Yonetmen = "Ali";
+	//	film.Tur = "Komedi";
+	//	film.Silindi = false;
+
+	//	var json = JsonConvert.SerializeObject(film); //1
+	//	var content = new StringContent(json, Encoding.UTF8, "application/json"); //1.1
+
+	//	//var request = new HttpRequestMessage
+	//	//{
+	//	//	RequestUri = new Uri("https://localhost:7206/api/Film"),
+	//	//	Method = HttpMethod.Put
+	//	//};
+
+	//	/*var client = HttpClientFactory.Create();*/  //2 (HttpClientFactory.Create() -> HttpClient() ile ayný iþlemi yapar. Factory daha seri çalýþýr.)
+	//	var client = new HttpClient(); //2
+	//	var response = await client.PutAsync("https://localhost:7206/api/Film", content); //3
+	//	var responseStream = await response.Content.ReadAsStringAsync(); //3.1 -> cursor =döngü
+
+	//	if (responseStream != null)
+	//	{			
+	//		return View(); //5 -> eðer api den gelen veri varsa model gönderilir.
+	//	}
+
+	//	return View(new Film()); //6 -> eðer api den gelen veri yoksa boþ bir model gönderilir.
+
+	//	}a
+
+	public async Task<IActionResult> FilmEditR2(Film model)
 	{
+		var gelenData = new Film();
+		try
+		{
+			var gonderilecekData = new Film()
+			{
+				Id = 3,
+				FilmAdi = "Vurguncular",
+				Yil = 2025,
+				Yonetmen = "Ali",
+				Tur = "Komedi",
+				Silindi = false
+			};
 
-		Film film = new Film();
-		film.Id = 3;
-		film.FilmAdi = "Vurguncular";
-		film.Yil = 2025;
-		film.Yonetmen = "Ali";
-		film.Tur = "Komedi";
-		film.Silindi = false;
+			var request = new HttpRequestMessage
+			{
+				RequestUri = new Uri("https://localhost:7206/api/Film"),
+				Method = HttpMethod.Put,
+				Content = new StringContent(JsonConvert.SerializeObject(gonderilecekData), Encoding.UTF8, "application/json")
+			};
 
-		var json = JsonConvert.SerializeObject(film); //1
-		var content = new StringContent(json, Encoding.UTF8, "application/json"); //1.1
 
-		//var request = new HttpRequestMessage
-		//{
-		//	RequestUri = new Uri("https://localhost:7206/api/Film"),
-		//	Method = HttpMethod.Put
-		//};
+			var client = HttpClientFactory.Create(); //2
+			var response = await client.SendAsync(request); //3
+			var responseStream = await response.Content.ReadAsStringAsync();//Cursor=döngü
 
-		/*var client = HttpClientFactory.Create();*/  //2 (HttpClientFactory.Create() -> HttpClient() ile ayný iþlemi yapar. Factory daha seri çalýþýr.)
-		var client = new HttpClient(); //2
-		var response = await client.PutAsync("https://localhost:7206/api/Film", content); //3
+			if (responseStream != null)
+			{
+				gelenData = JsonConvert.DeserializeObject<Film>(responseStream); //4
+				return View(gelenData); //5
+			}
+		}
+		catch (Exception ex)
+		{
+			throw new Exception(ex.Message);
+		}
+
+		return View(gelenData); //6
+	}
+
+	public async Task<IActionResult> Detay(int? id)
+	{
+		if (id == null)
+			return NotFound();
+
+		var request = new HttpRequestMessage
+		{
+			RequestUri = new Uri("https://localhost:7206/api/Film/" + id),
+			Method = HttpMethod.Get
+		};
+
+		var client = HttpClientFactory.Create();  //2
+		var response = await client.SendAsync(request); //3
 		var responseStream = await response.Content.ReadAsStringAsync(); //3.1 -> cursor =döngü
 
 		if (responseStream != null)
-		{			
-			return View(); //5 -> eðer api den gelen veri varsa model gönderilir.
+		{
+			var film = JsonConvert.DeserializeObject<Film>(responseStream); //4
+			return View(film); //5 -> eðer api den gelen veri varsa model gönderilir.
 		}
 
-		return View(new Film()); //6 -> eðer api den gelen veri yoksa boþ bir model gönderilir.
-														 
-		}
-
-	public IActionResult Index()
-	{
-		return View();
+		return View(new Film());
 	}
 
 	public IActionResult Privacy()
